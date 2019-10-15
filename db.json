@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "name": "Maksim",
+      "password": "crocodil",
+      "id": "1"
+    },
+    {
+      "name": "Sensey",
+      "password": "",
+      "id": "2"
+    }
+  ],
+
+  "messages": [
+    {
+      "name": "Adam",
+      "message": "Hey, did anyone see Eve?",
+      "id": "1"
+    }
+  ]
+}

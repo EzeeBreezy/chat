@@ -1,0 +1,14 @@
+{
+  "name": "heroku-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:EzeeBreezy/heroku-shop.git",
+  "author": "Vlad Panchenko <vladlibero@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "json-server": "^0.15.0"
+  }
+}
