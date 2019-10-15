@@ -7,7 +7,7 @@
     },
     {
       "name": "Sensey",
-      "password": "",
+      "password": "shmensey",
       "id": "2"
     }
   ],
@@ -17,6 +17,11 @@
       "name": "Adam",
       "message": "Hey, did anyone see Eve?",
       "id": "1"
+    },
+    {
+      "name": "Anonymous",
+      "message": "Хороший программист всегда смотрит и направо, и налево прежде чем перейти улицу с односторонним движением.",
+      "id": "2"
     }
   ]
 }
