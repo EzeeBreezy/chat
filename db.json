@@ -19,6 +19,11 @@
       "name": "Vlad",
       "password": "ezee",
       "id": 4
+    },
+    {
+      "name": "Julia",
+      "password": "pretty",
+      "id": 5
     }
   ],
   "messages": [
