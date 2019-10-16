@@ -38,7 +38,7 @@ loginForm.onsubmit = async event => {
         spinner.classList.add("spinner-border", "spinner-border-sm")
         formBtn.prepend(spinner)
         //TODO registration form
-        let usersRequest = await fetch('http://localhost:3000/users')
+        let usersRequest = await fetch('/users')
         let users = await usersRequest.json()
                 //TODO check if remember me checked (keep in cookie?)
         let userFound = users.find(user => user.name === nickname && user.password === password)
@@ -46,7 +46,7 @@ loginForm.onsubmit = async event => {
             loginContainer.classList.add('d-none')
             chatContainer.classList.remove('d-none')
             ;(async function readMsgs() {
-                let historyRequest = await fetch('http://localhost:3000/messages')
+                let historyRequest = await fetch('/messages')
                 let history = await historyRequest.json()
                 for (let msg of history) placeMessage(msg)
             })()
@@ -70,7 +70,7 @@ msgForm.onsubmit = async event => {
     msgInp.value = ''
     //TODO hash mb?
     if (newMsg !== '') {
-        let msgSentToServer = await fetch('http://localhost:3000/messages', {
+        let msgSentToServer = await fetch('/messages', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
