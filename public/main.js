@@ -158,3 +158,4 @@ msgForm.onsubmit = async event => {
   //TODO account settings, avatar, title
   //TODO smiles?
   //TODO sedning files?
+  //TODO statuses (online, offline, invisible, afk)
