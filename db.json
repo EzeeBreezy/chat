@@ -29,12 +29,12 @@
   "messages": [
     {
       "name": "Adam",
-      "message": "Hey, did anyone see Eve?",
+      "message": "Hey, did anyone see Eve? (test message 1)",
       "id": 1
     },
     {
       "name": "Anonymous",
-      "message": "Хороший программист всегда смотрит и направо, и налево прежде чем перейти улицу с односторонним движением.",
+      "message": "Хороший программист всегда смотрит и направо, и налево прежде чем перейти улицу с односторонним движением.  (test message 2)",
       "id": 2
     }
   ]

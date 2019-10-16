@@ -27,7 +27,7 @@ const placeMessage = ({name, message, id}) => {
     messagesContainer.appendChild(messageNode)
 }
 
-
+//TODO scroll position - bottom
 
 loginForm.onsubmit = async event => {
     event.preventDefault()
