@@ -32,9 +32,8 @@ const placeMessage = ({ name, message, id }) => {
   messageNode.appendChild(userSpan)
   messageNode.appendChild(msg)
   messagesContainer.appendChild(messageNode)
+  messageNode.scrollIntoView({block: "end", behavior: "smooth"})
 }
-
-//TODO scroll position - bottom
 
 loginForm.onsubmit = async event => {
   event.preventDefault()
@@ -140,7 +139,6 @@ msgForm.onsubmit = async event => {
   event.preventDefault()
   let { value: newMsg } = msgInp
   msgInp.value = ""
-  //TODO hash mb?
   if (newMsg !== "") {
     let msgSentToServer = await fetch("/messages", {
       method: "POST",
@@ -153,3 +151,10 @@ msgForm.onsubmit = async event => {
     placeMessage(reply)
   }
 }
+
+//TODO private rooms, friends
+  //TODO hash mb?
+  //TODO sending pictures
+  //TODO account settings, avatar, title
+  //TODO smiles?
+  //TODO sedning files?
