@@ -18,7 +18,7 @@ const placeAlert = (parent, alertType, alertText) => {
   parent.prepend(loginAlert)
 }
 
-const placeMessage = ({ name, message, id }) => {
+const placeMessage = ({ name, message, imageMsg, id }) => {
   //TODO message date&time
   let messageNode = create("p")
   messageNode.id = id
@@ -27,13 +27,42 @@ const placeMessage = ({ name, message, id }) => {
   name === nickname
     ? (userSpan.style.color = "orange")
     : (userSpan.style.color = "blue")
-  let msg = create("span")
-  msg.innerText = message
-  messageNode.appendChild(userSpan)
-  messageNode.appendChild(msg)
+    //**if text */
+    if (message) {
+        let msg = create("span")
+        msg.innerText = message
+        messageNode.appendChild(userSpan)
+        messageNode.appendChild(msg)
+    }
+    else {
+        let img = create("img")
+        img.src = imageMsg
+        img.style.width = '300px'
+        messageNode.appendChild(userSpan)
+        messageNode.appendChild(img)
+    }
+
   messagesContainer.appendChild(messageNode)
   messageNode.scrollIntoView({block: "end", behavior: "smooth"})
 }
+
+// const placeImg = ({ name, imageMsg, id }) => {
+//     //TODO message date&time
+//     let messageNode = create("p")
+//     messageNode.id = id
+//     let userSpan = create("span")
+//     userSpan.innerText = `${name}: `
+//     name === nickname
+//       ? (userSpan.style.color = "orange")
+//       : (userSpan.style.color = "blue")
+//     let img = create("img")
+//     img.src = imageMsg
+//     img.style.width = '300px'
+//     messageNode.appendChild(userSpan)
+//     messageNode.appendChild(img)
+//     messagesContainer.appendChild(messageNode)
+//     messageNode.scrollIntoView({block: "end", behavior: "smooth"})
+//   }
 
 loginForm.onsubmit = async event => {
   event.preventDefault()
@@ -151,6 +180,42 @@ msgForm.onsubmit = async event => {
     placeMessage(reply)
   }
 }
+
+sendImgBtn.onclick = async () => {
+        //*reading image
+  let { files: uploadedFiles } = fileInput
+  fileInput.files[0] = null
+  fileLabel.innerText = "Choose file..."
+  if (uploadedFiles.length) {
+    let fileReader = new FileReader()
+    fileReader.onload = async event => {
+        let baseData = event.target.result
+        let imgSentToServer = await fetch("/messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: nickname, imageMsg: baseData })
+          })
+        let reply = await imgSentToServer.json()
+        placeMessage(reply)
+
+    }
+    fileReader.readAsDataURL(uploadedFiles[0])
+  }
+}
+
+fileInput.onchange = () => {
+     fileLabel.innerText = fileInput.files[0].name
+    
+}
+
+
+//! onchange for input => change label and enable upload btn
+
+
+
+
 
 //TODO private rooms, friends
   //TODO hash mb?
