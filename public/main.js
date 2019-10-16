@@ -159,3 +159,4 @@ msgForm.onsubmit = async event => {
   //TODO smiles?
   //TODO sedning files?
   //TODO statuses (online, offline, invisible, afk)
+//TODO system messages in chat
