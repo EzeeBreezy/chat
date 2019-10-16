@@ -11,11 +11,18 @@ const placeAlert = (alertType, alertText) => {
     loginContainer.prepend(loginAlert)
 }
 
-const placeMessage = (name, message) => {
-                        //TODO span for username
+const placeMessage = ({name, message}) => {
                     //TODO message date&time
     let messageNode = create('p')
-    messageNode.innerText = `${name}: ${message}`
+    let userSpan = create('span')
+    userSpan.innerText = `${name}: `
+    name === nickname
+        ? userSpan.style.color = 'orange'
+        : userSpan.style.color = 'blue'
+    let msg = create('span')
+    msg.innerText = message
+    messageNode.appendChild(userSpan)
+    messageNode.appendChild(msg)
     messagesContainer.appendChild(messageNode)
 }
 
@@ -41,7 +48,7 @@ loginForm.onsubmit = async event => {
             ;(async function readMsgs() {
                 let historyRequest = await fetch('http://localhost:3000/messages')
                 let history = await historyRequest.json()
-                for (let msg of history) placeMessage(msg.name, msg.message)
+                for (let msg of history) placeMessage(msg)
             })()
         } 
         else {
@@ -61,15 +68,17 @@ msgForm.onsubmit = async event => {
     event.preventDefault()
     let { value: newMsg } = msgInp
     msgInp.value = ''
-    //TODO send to server and check if it was sent, then place on page
     //TODO hash mb?
     if (newMsg !== '') {
         let msgSentToServer = await fetch('http://localhost:3000/messages', {
-            method: "POST",
-            headers: "",
-            body: 
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+        },
+            body: JSON.stringify({ 'name': nickname, 'message': newMsg})
         })
-        placeMessage(nickname, newMsg)
+        let reply = await msgSentToServer.json()
+        placeMessage(reply)
     }
     
 }

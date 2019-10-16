@@ -3,25 +3,34 @@
     {
       "name": "Maksim",
       "password": "crocodil",
-      "id": "1"
+      "id": 1
     },
     {
       "name": "Sensey",
       "password": "shmensey",
-      "id": "2"
+      "id": 2
+    },
+    {
+      "name": "Ihor",
+      "password": "IloveFrance",
+      "id": 3
+    },
+    {
+      "name": "Vlad",
+      "password": "ezee",
+      "id": 4
     }
   ],
-
   "messages": [
     {
       "name": "Adam",
       "message": "Hey, did anyone see Eve?",
-      "id": "1"
+      "id": 1
     },
     {
       "name": "Anonymous",
       "message": "Хороший программист всегда смотрит и направо, и налево прежде чем перейти улицу с односторонним движением.",
-      "id": "2"
+      "id": 2
     }
   ]
 }
