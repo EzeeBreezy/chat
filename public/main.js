@@ -1,5 +1,5 @@
-let nickname = '', password = ''
-//TODO no need to keep pwd, should let it die inside onsubmit
+let nickname = ''
+
 const create = tag => document.createElement(tag)
 
 const placeAlert = (alertType, alertText) => {
@@ -11,9 +11,10 @@ const placeAlert = (alertType, alertText) => {
     loginContainer.prepend(loginAlert)
 }
 
-const placeMessage = ({name, message}) => {
+const placeMessage = ({name, message, id}) => {
                     //TODO message date&time
     let messageNode = create('p')
+    messageNode.id = id
     let userSpan = create('span')
     userSpan.innerText = `${name}: `
     name === nickname
@@ -26,12 +27,14 @@ const placeMessage = ({name, message}) => {
     messagesContainer.appendChild(messageNode)
 }
 
+
+
 loginForm.onsubmit = async event => {
     event.preventDefault()
     if (nicknameInp.value !== '' && passwordInp.value !== '') {
         nickname = loginForm.nickname.value
         loginForm.nickname.value = ''
-        password = loginForm.password.value
+        let password = loginForm.password.value
         loginForm.password.value = ''
         formBtn.innerText = '  Checking...'
         let spinner = create('span')
@@ -45,11 +48,12 @@ loginForm.onsubmit = async event => {
         if (userFound) {
             loginContainer.classList.add('d-none')
             chatContainer.classList.remove('d-none')
-            ;(async function readMsgs() {
+            let startListening = setInterval( async () => {
                 let historyRequest = await fetch('/messages')
                 let history = await historyRequest.json()
-                for (let msg of history) placeMessage(msg)
-            })()
+                for (let msg of history) 
+                    if (!messagesContainer.lastChild || +msg.id > +messagesContainer.lastChild.id) placeMessage(msg)
+            }, 1500)
         } 
         else {
             let alertText = "User was not found. Consider registering first =)"
@@ -79,6 +83,5 @@ msgForm.onsubmit = async event => {
         })
         let reply = await msgSentToServer.json()
         placeMessage(reply)
-    }
-    
+    }  
 }
