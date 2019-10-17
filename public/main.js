@@ -1,8 +1,12 @@
+//* Global variables
 let nickname = ""
+//? do i need users as global?
 let users
 
+//* Shortcuts
 const create = tag => document.createElement(tag)
 
+// Creates alert div for login and register forms
 const placeAlert = (parent, alertType, alertText) => {
   if (parent.firstChild.tagName !== "FORM")
     parent.removeChild(parent.firstChild)
@@ -27,13 +31,14 @@ const placeMessage = ({ name, message, imageMsg, id }) => {
   name === nickname
     ? (userSpan.style.color = "orange")
     : (userSpan.style.color = "blue")
-    //**if text */
+    //if text 
     if (message) {
         let msg = create("span")
         msg.innerText = message
         messageNode.appendChild(userSpan)
         messageNode.appendChild(msg)
     }
+    // if image
     else {
         let img = create("img")
         img.src = imageMsg
@@ -41,17 +46,23 @@ const placeMessage = ({ name, message, imageMsg, id }) => {
         messageNode.appendChild(userSpan)
         messageNode.appendChild(img)
     }
-
   messagesContainer.appendChild(messageNode)
   messageNode.scrollIntoView({block: "end", behavior: "smooth"})
 }
 
+let readAndHash = (inputTagId) => {
+  let sha = new jsSHA("SHA-256", "TEXT")
+  sha.update(inputTagId.value)
+  return sha.getHash("HEX")
+}
+
+//* Event Handlers
 loginForm.onsubmit = async event => {
   event.preventDefault()
   if (nicknameInp.value !== "" && passwordInp.value !== "") {
     nickname = loginForm.nickname.value
     loginForm.nickname.value = ""
-    let password = loginForm.password.value
+    let password = readAndHash(loginForm.password)
     loginForm.password.value = ""
     formBtn.innerText = "  Checking..."
     let spinner = create("span")
@@ -100,7 +111,7 @@ registerForm.onsubmit = async event => {
     let userFound = users.find(user => user.name === userAttemp)
     if (!userFound) {
       registerForm.nickname.value = ""
-      let password = registerForm.password.value
+      let password = readAndHash(registerForm.password)
       registerForm.password.value = ""
       let postNewUser = await fetch("/users", {
         method: "POST",
@@ -197,7 +208,6 @@ fileInput.onchange = () => {
 
 
 //TODO private rooms, friends
-  //TODO hash mb?
   //TODO sending pictures
   //TODO account settings, avatar, title
   //TODO smiles?
@@ -205,8 +215,3 @@ fileInput.onchange = () => {
   //TODO statuses (online, offline, invisible, afk)
 //TODO system messages in chat
 
-//* hashing tips
-// var shaObj = new jsSHA("SHA-512", "TEXT");
-// shaObj.update("This is a ");
-// shaObj.update("test");
-// var hash = shaObj.getHash("HEX");
