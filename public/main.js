@@ -62,6 +62,7 @@ loginForm.onsubmit = async event => {
   if (nicknameInp.value !== "" && passwordInp.value !== "") {
     nickname = loginForm.nickname.value
     loginForm.nickname.value = ""
+
     let password = readAndHash(loginForm.password)
     loginForm.password.value = ""
     formBtn.innerText = "  Checking..."
@@ -75,6 +76,9 @@ loginForm.onsubmit = async event => {
       user => user.name === nickname && user.password === password
     )
     if (userFound) {
+      rememberCheck.checked 
+        ? localStorage.setItem('rememberedUser', JSON.stringify([nickname, password]))
+        : null
       loginContainer.classList.add("d-none")
       chatContainer.classList.remove("d-none")
       let startListening = setInterval(async () => {
@@ -140,6 +144,7 @@ registerForm.onsubmit = async event => {
 }
 
 //TODO logout btn
+//TODO forget me chckbox
 
 createBadge.onclick = event => {
   event.preventDefault()
@@ -204,7 +209,7 @@ fileInput.onchange = () => {
 }
 
 
-//! onchange for input => change label and enable upload btn
+//! onchange for image input => change label and enable upload btn
 
 
 //TODO private rooms, friends
@@ -215,3 +220,13 @@ fileInput.onchange = () => {
   //TODO statuses (online, offline, invisible, afk)
 //TODO system messages in chat
 
+
+(function checkLocal() {
+  let user = JSON.parse(localStorage.getItem('rememberedUser'))
+  if (user.length) {
+    nicknameInp.value = user[0]
+    passwordInp.value = user[1] // damn its hashed
+    let submit = new Event('submit')
+    loginForm.dispatchEvent(submit)
+  }
+})()
