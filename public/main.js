@@ -46,24 +46,6 @@ const placeMessage = ({ name, message, imageMsg, id }) => {
   messageNode.scrollIntoView({block: "end", behavior: "smooth"})
 }
 
-// const placeImg = ({ name, imageMsg, id }) => {
-//     //TODO message date&time
-//     let messageNode = create("p")
-//     messageNode.id = id
-//     let userSpan = create("span")
-//     userSpan.innerText = `${name}: `
-//     name === nickname
-//       ? (userSpan.style.color = "orange")
-//       : (userSpan.style.color = "blue")
-//     let img = create("img")
-//     img.src = imageMsg
-//     img.style.width = '300px'
-//     messageNode.appendChild(userSpan)
-//     messageNode.appendChild(img)
-//     messagesContainer.appendChild(messageNode)
-//     messageNode.scrollIntoView({block: "end", behavior: "smooth"})
-//   }
-
 loginForm.onsubmit = async event => {
   event.preventDefault()
   if (nicknameInp.value !== "" && passwordInp.value !== "") {
@@ -214,9 +196,6 @@ fileInput.onchange = () => {
 //! onchange for input => change label and enable upload btn
 
 
-
-
-
 //TODO private rooms, friends
   //TODO hash mb?
   //TODO sending pictures
@@ -225,3 +204,9 @@ fileInput.onchange = () => {
   //TODO sedning files?
   //TODO statuses (online, offline, invisible, afk)
 //TODO system messages in chat
+
+//* hashing tips
+// var shaObj = new jsSHA("SHA-512", "TEXT");
+// shaObj.update("This is a ");
+// shaObj.update("test");
+// var hash = shaObj.getHash("HEX");
