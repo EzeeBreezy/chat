@@ -29,11 +29,13 @@
   "messages": [
     {
       "name": "Adam",
+      "date": "01.01.0001, 21:24:37",
       "message": "Hey, did anyone see Eve? (test message 1)",
       "id": 1
     },
     {
       "name": "Anonymous",
+      "date": "30.02.2015, 28:74:05",
       "message": "Хороший программист всегда смотрит и направо, и налево прежде чем перейти улицу с односторонним движением.  (test message 2)",
       "id": 2
     }

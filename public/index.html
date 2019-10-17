@@ -11,6 +11,9 @@
 </head>
 <body class="bg-dark">
 
+  
+  <img src="assets/images/logo.png" alt="" width="50">
+
   <div id="loginContainer" class="container mt-5 p-5 bg-light"><form id="loginForm" class="col-lg-6 ml-auto mr-auto">
       <div class="form-group">
         <label for="nicknameInp">Your nickname</label>
@@ -44,16 +47,19 @@
 
 
   <div id="chatContainer" class="container mt-5 p-5 bg-light d-none">
-    <div  id="messagesContainer" class="container overflow-auto"></div>
+    <div class="row">
+      <div class="col-lg-4"></div>
+      <div class="col-lg-8">
+        <div  id="messagesContainer" class="container overflow-auto"></div>
 
-    <form id="msgForm">
-    <div class="input-group">
-        <input type="text" class="form-control" placeholder="Enter yout message..." id="msgInp">
-        <div class="input-group-append">
-          <button class="btn btn-outline-primary" type="submit" id="sendBtn">Send</button>
-        </div>
-      </div>          
-    </form>
+        <form id="msgForm">
+        <div class="input-group">
+           <input type="text" class="form-control" placeholder="Enter yout message..." id="msgInp">
+           <div class="input-group-append">
+             <button class="btn btn-outline-primary" type="submit" id="sendBtn">Send</button>
+           </div>
+         </div>          
+       </form>
     
       <div class="input-group">
         <div class="custom-file">
@@ -64,7 +70,8 @@
           <button class="btn btn-outline-primary" id="sendImgBtn">Upload image</button>
         </div>
       </div>
-  
+    </div>
+    </div>
   </div>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.3.1/sha256.js" integrity="sha256-NyuvLfsvfCfE+ceV6/W19H+qVp3M8c9FzAgj72CW39w=" crossorigin="anonymous"></script>

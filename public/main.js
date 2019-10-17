@@ -22,12 +22,11 @@ const placeAlert = (parent, alertType, alertText) => {
    parent.prepend(loginAlert)
 }
 
-const placeMessage = ({ name, message, imageMsg, id }) => {
+const placeMessage = ({ name, date, message, imageMsg, id }) => {
    let messageNode = create("p")
    messageNode.id = id
    let timeSpan = create("span")
-   let curDate = new Date()
-   timeSpan.innerText = `<<${curDate.toLocaleString()}>> `
+   timeSpan.innerText = `<<${date}>> `
    timeSpan.style.fontWeight = "lighter"
    timeSpan.style.fontStyle = "italic"
    timeSpan.style.fontSize = "0.75rem"
@@ -178,13 +177,19 @@ msgForm.onsubmit = async event => {
    event.preventDefault()
    let { value: newMsg } = msgInp
    msgInp.value = ""
+   let curDate = new Date()
+   let dateStr = curDate.toLocaleString()
    if (newMsg !== "") {
       let msgSentToServer = await fetch("/messages", {
          method: "POST",
          headers: {
             "Content-Type": "application/json"
          },
-         body: JSON.stringify({ name: nickname, message: newMsg })
+         body: JSON.stringify({
+            name: nickname,
+            date: dateStr,
+            message: newMsg
+         })
       })
       let reply = await msgSentToServer.json()
       placeMessage(reply)
@@ -200,12 +205,18 @@ sendImgBtn.onclick = async () => {
       let fileReader = new FileReader()
       fileReader.onload = async event => {
          let baseData = event.target.result
+         let curDate = new Date()
+         let dateStr = curDate.toLocaleString()
          let imgSentToServer = await fetch("/messages", {
             method: "POST",
             headers: {
                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ name: nickname, imageMsg: baseData })
+            body: JSON.stringify({
+               name: nickname,
+               date: dateStr,
+               imageMsg: baseData
+            })
          })
          let reply = await imgSentToServer.json()
          placeMessage(reply)
@@ -225,7 +236,7 @@ fileInput.onchange = () => {
    let user = JSON.parse(localStorage.getItem("rememberedUser"))
    if (user) {
       nicknameInp.value = user[0]
-      passwordInp.value = user[1] 
+      passwordInp.value = user[1]
       let submit = new Event("submit")
       loginForm.dispatchEvent(submit)
    }
@@ -235,3 +246,5 @@ fileInput.onchange = () => {
 //TODO account settings, avatar, title
 //TODO statuses (online, offline, invisible, afk)
 //TODO system messages in chat
+//! bootstrap nav tabs for chatrooms, last one always dropdown, list of users (search?)
+//! vertical pills!!
