@@ -199,7 +199,6 @@ msgForm.onsubmit = async event => {
 sendImgBtn.onclick = async () => {
    //*reading image
    let { files: uploadedFiles } = fileInput
-   fileInput.files[0] = null
    fileLabel.innerText = "Choose file..."
    if (uploadedFiles.length) {
       let fileReader = new FileReader()
@@ -225,11 +224,20 @@ sendImgBtn.onclick = async () => {
    }
 }
 
-fileInput.onchange = () => {
-   fileLabel.innerText = fileInput.files[0].name
+let returnFileSize = number => {
+  if(number < 1024) {
+    return number + 'bytes';
+  } else if(number > 1024 && number < 1048576) {
+    return (number/1024).toFixed(1) + 'KB';
+  } else if(number > 1048576) {
+    return (number/1048576).toFixed(1) + 'MB';
+  }
 }
 
-//! onchange for image input => change label and enable upload btn
+fileInput.onchange = () => {
+  let size = returnFileSize(fileInput.files[0].size)
+   fileLabel.innerText = `"${fileInput.files[0].name}", ${size}`
+}
 
 //this is "remember me" logic
 ;(function checkLocal() {

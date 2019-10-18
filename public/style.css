@@ -1,6 +1,6 @@
 body {
     background: url(/assets/images/bgnd.png);
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif
 }
 
 #messagesContainer {
@@ -8,7 +8,7 @@ body {
 }
 
 .container {
-    border-radius: 20px;
+    border-radius: 20px
 }
 
 .navbar {

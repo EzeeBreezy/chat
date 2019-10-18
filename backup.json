@@ -1,29 +1,9 @@
 {
   "users": [
     {
-      "name": "Maksim",
-      "password": "crocodil",
+      "name": "test",
+      "password": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
       "id": 1
-    },
-    {
-      "name": "Sensey",
-      "password": "shmensey",
-      "id": 2
-    },
-    {
-      "name": "Ihor",
-      "password": "IloveFrance",
-      "id": 3
-    },
-    {
-      "name": "Vlad",
-      "password": "ezee",
-      "id": 4
-    },
-    {
-      "name": "Julia",
-      "password": "pretty",
-      "id": 5
     }
   ],
   "messages": [
@@ -39,6 +19,5 @@
       "message": "Хороший программист всегда смотрит и направо, и налево прежде чем перейти улицу с односторонним движением.  (test message 2)",
       "id": 2
     }
-     
   ]
 }
