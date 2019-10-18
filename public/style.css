@@ -4,7 +4,7 @@ body {
 }
 
 #messagesContainer {
-    height: 75vh
+    height: 70vh
 }
 
 .container {
@@ -18,4 +18,9 @@ body {
 .logotext {
     font-family: 'Modak', cursive;
     font-size: 1.6rem
+}
+
+#userNick {
+    font-family: 'Modak', cursive;
+    font-size: 1.5rem;
 }

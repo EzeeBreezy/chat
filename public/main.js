@@ -2,6 +2,7 @@
 let nickname = ""
 //? do i need users as global?
 let users
+let startListening
 
 //* Shortcuts
 const create = tag => document.createElement(tag)
@@ -84,6 +85,7 @@ loginForm.onsubmit = async event => {
          user => user.name === nickname && user.password === password
       )
       if (userFound) {
+        userNick.innerText = nickname
          rememberCheck.checked
             ? localStorage.setItem(
                  "rememberedUser",
@@ -92,7 +94,7 @@ loginForm.onsubmit = async event => {
             : null
          loginContainer.classList.add("d-none")
          chatContainer.classList.remove("d-none")
-         let startListening = setInterval(async () => {
+         startListening = setInterval(async () => {
             let historyRequest = await fetch("/messages")
             let history = await historyRequest.json()
             for (let msg of history)
@@ -173,6 +175,14 @@ gobackBadge.onclick = event => {
       registrationContainer.removeChild(registrationContainer.firstChild)
 }
 
+logoutBtn.onclick = event => {
+  event.preventDefault()
+  loginContainer.classList.remove("d-none")
+  chatContainer.classList.add("d-none")
+  localStorage.clear()
+  clearInterval(startListening)
+}
+
 msgForm.onsubmit = async event => {
    event.preventDefault()
    let { value: newMsg } = msgInp
@@ -251,6 +261,7 @@ fileInput.onchange = () => {
 })()
 
 //TODO private rooms, friends
+//TODO make userNick font-size adaptive by nickname.length
 //TODO account settings, avatar, title
 //TODO statuses (online, offline, invisible, afk)
 //TODO system messages in chat
