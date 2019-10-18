@@ -26,6 +26,23 @@ const placeAlert = (parent, alertType, alertText) => {
 const placeMessage = ({ name, date, message, imageMsg, id }) => {
    let messageNode = create("p")
    messageNode.id = id
+      //message editing
+      let editor = create('a')
+      if (name == nickname) {
+         editor.innerText = ' Edit...'
+         editor.classList.add('badge', 'badge-primary')
+         editor.style.color = 'white'
+         editor.style.fontSize = '0.6rem'
+         editor.style.display = 'none'
+         editor.style.cursor = 'pointer'
+         editor.onclick = event => {
+            console.log(event.currentTarget.parentNode)
+            event.currentTarget.previousSibling.style.outline = '1px solid lightblue'
+            event.currentTarget.previousSibling.setAttribute('contentEditable', 'true')
+         }
+         messageNode.onmouseover = () => editor.style.display = 'inline'
+         messageNode.onmouseout = () => editor.style.display = 'none'
+         }
    let timeSpan = create("span")
    timeSpan.innerText = `<<${date}>> `
    timeSpan.style.fontWeight = "lighter"
@@ -42,7 +59,7 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
    //if text
    if (message) {
       let msg = create("span")
-      msg.innerText = message
+      msg.innerText = `${message}  `
       messageNode.appendChild(msg)
    }
    // if image
@@ -52,7 +69,11 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
       img.style.width = "300px"
       messageNode.appendChild(img)
    }
+
+   messageNode.appendChild(editor)
+   
    messagesContainer.appendChild(messageNode)
+   //! may be message container scroll into view?
    messageNode.scrollIntoView({ block: "end", behavior: "smooth" })
 }
 
@@ -264,6 +285,3 @@ fileInput.onchange = () => {
 //TODO make userNick font-size adaptive by nickname.length
 //TODO account settings, avatar, title
 //TODO statuses (online, offline, invisible, afk)
-//TODO system messages in chat
-//! bootstrap nav tabs for chatrooms, last one always dropdown, list of users (search?)
-//! vertical pills!!

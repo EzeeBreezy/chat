@@ -11,13 +11,9 @@ body {
     border-radius: 20px
 }
 
-.navbar {
-    background: linear-gradient(to right, rgba(254,182,69,0.93) 0%, rgba(254,182,69,0.94) 3%, rgba(254,182,69,0.96) 36%, rgba(247,208,87,0.98) 70%, rgba(241,231,103,0.39) 100%)
-}
-
 .logotext {
     font-family: 'Modak', cursive;
-    font-size: 1.6rem
+    font-size: 2rem
 }
 
 #userNick {
