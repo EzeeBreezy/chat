@@ -98,9 +98,22 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
    }
 
    let remover = createClickBadge("Delete", "danger")
-   // remover.onclick = async (event) => {
-      
-   // }
+   remover.onclick = (event) => {
+      let modalConfirm = new Modal(confirmBox)
+      modalConfirm.show()
+      confirmBtn.onclick = async () => {
+         let id = remover.parentNode.id
+         await fetch(`/messages/${id}`, {
+            method: "DELETE",
+            headers: {
+               "Content-Type": "application/json"
+            }
+         })
+         remover.parentNode.parentNode.removeChild(remover.parentNode)
+         modalConfirm.hide()
+      }
+   }
+   
    //making other editors visible/invisible while editing in progress
    if (name == nickname) {
       if (message) {
@@ -368,3 +381,5 @@ fileInput.onchange = () => {
 //TODO make userNick font-size adaptive by nickname.length
 //TODO account settings, avatar, title
 //TODO statuses (online, offline, invisible, afk)
+
+
