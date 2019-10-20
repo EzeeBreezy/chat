@@ -98,7 +98,7 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
    }
 
    let remover = createClickBadge("Delete", "danger")
-   remover.onclick = (event) => {
+   remover.onclick = event => {
       let modalConfirm = new Modal(confirmBox)
       modalConfirm.show()
       confirmBtn.onclick = async () => {
@@ -113,7 +113,7 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
          modalConfirm.hide()
       }
    }
-   
+
    //making other editors visible/invisible while editing in progress
    if (name == nickname) {
       if (message) {
@@ -235,36 +235,43 @@ loginForm.onsubmit = async event => {
 registerForm.onsubmit = async event => {
    event.preventDefault()
    if (regnameInp.value !== "" && regpassInp.value !== "") {
-      regBtn.innerText = "  Checking..."
-      let spinner = create("span")
-      spinner.classList.add("spinner-border", "spinner-border-sm")
-      regBtn.prepend(spinner)
-      let usersRequest = await fetch("/users")
-      users = await usersRequest.json()
-      let userAttemp = registerForm.nickname.value
-      let userFound = users.find(user => user.name === userAttemp)
-      if (!userFound) {
-         registerForm.nickname.value = ""
-         let password = readAndHash(registerForm.password)
-         registerForm.password.value = ""
-         let postNewUser = await fetch("/users", {
-            method: "POST",
-            headers: {
-               "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ name: userAttemp, password: password })
-         })
-         if (postNewUser.status < 305 && postNewUser.status > 199) {
-            let alertText =
-               "Registration successful, thank you! You can go BACK and login now"
-            placeAlert(registrationContainer, "success", alertText)
+      let passStrength = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})")
+      if (passStrength.test(regpassInp.value)) {
+         regBtn.innerText = "  Checking..."
+         let spinner = create("span")
+         spinner.classList.add("spinner-border", "spinner-border-sm")
+         regBtn.prepend(spinner)
+         let usersRequest = await fetch("/users")
+         users = await usersRequest.json()
+         let userAttemp = registerForm.nickname.value
+         let userFound = users.find(user => user.name === userAttemp)
+         if (!userFound) {
+            registerForm.nickname.value = ""
+            let password = readAndHash(registerForm.password)
+            registerForm.password.value = ""
+            let postNewUser = await fetch("/users", {
+               method: "POST",
+               headers: {
+                  "Content-Type": "application/json"
+               },
+               body: JSON.stringify({ name: userAttemp, password: password })
+            })
+            if (postNewUser.status < 305 && postNewUser.status > 199) {
+               let alertText =
+                  "Registration successful, thank you! You can go BACK and login now"
+               placeAlert(registrationContainer, "success", alertText)
+            } else {
+               let alertText = "Something went wrong, please try again"
+               placeAlert(registrationContainer, "danger", alertText)
+            }
          } else {
-            let alertText = "Something went wrong, please try again"
+            let alertText = "Such user already exists. Try another name"
             placeAlert(registrationContainer, "danger", alertText)
          }
       } else {
-         let alertText = "Such user already exists. Try another name"
-         placeAlert(registrationContainer, "danger", alertText)
+         let alertText =
+            "Password should be minimum eight characters, at least one uppercase letter, one lowercase letter and one number. Please try again"
+         placeAlert(registrationContainer, "warning", alertText)
       }
    } else {
       let alertText = "Either nickname or password was not filled"
@@ -381,5 +388,3 @@ fileInput.onchange = () => {
 //TODO make userNick font-size adaptive by nickname.length
 //TODO account settings, avatar, title
 //TODO statuses (online, offline, invisible, afk)
-
-
