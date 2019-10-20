@@ -206,6 +206,10 @@ loginForm.onsubmit = async event => {
       )
       if (userFound) {
          userNick.innerText = nickname
+         if (userFound.avatar) {
+            profilePicture.src = userFound.avatar
+            userAvatar.src = userFound.avatar
+         } 
          rememberCheck.checked
             ? localStorage.setItem(
                  "rememberedUser",
@@ -304,6 +308,7 @@ logoutBtn.onclick = event => {
    chatContainer.classList.add("d-none")
    localStorage.clear()
    clearInterval(startListening)
+   nickname = ''
 }
 
 msgForm.onsubmit = async event => {
@@ -368,8 +373,11 @@ let returnFileSize = number => {
 }
 
 fileInput.onchange = () => {
-   let size = returnFileSize(fileInput.files[0].size)
-   fileLabel.innerText = `"${fileInput.files[0].name}", ${size}`
+   if (fileInput.files.length) {
+      let size = returnFileSize(fileInput.files[0].size)
+      fileLabel.innerText = `"${fileInput.files[0].name}", ${size}`
+   } 
+   else fileLabel.innerText = 'Choose image...'
 }
 
 //initializing "remember me" logic
@@ -472,7 +480,9 @@ confirmNewPassInp.oninput = () => {
    } else confirmNewPassInp.style.outline = "none"
 }
 
+
+
 //TODO private rooms, friends
 //TODO make userNick font-size adaptive by nickname.length
-//TODO account settings, avatar, title
+//TODO account settings, avatar, 
 //TODO statuses (online, offline, invisible, afk)
