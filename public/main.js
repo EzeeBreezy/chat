@@ -3,6 +3,7 @@ let nickname = ""
 //? do i need users as global?
 let users
 let startListening
+let editInProgress = false
 
 //* Shortcuts
 const create = tag => document.createElement(tag)
@@ -23,26 +24,105 @@ const placeAlert = (parent, alertType, alertText) => {
    parent.prepend(loginAlert)
 }
 
+const createClickBadge = (text, type) => {
+   let badge = create("a")
+   badge.innerText = text
+   badge.classList.add("badge", `badge-${type}`)
+   badge.style.color = "white"
+   badge.style.fontSize = "0.7rem"
+   badge.style.display = "none"
+   badge.style.cursor = "pointer"
+   return badge
+}
+
+const resetVisibility = (editState, name) => {
+   let ownMessages = [...document.getElementsByClassName(`${name}`)]
+   if (editState) {
+      ownMessages.forEach(elem => {
+         elem.onmouseover = () => {
+            elem.lastChild.style.display = "inline"
+            if (![...elem.classList].includes("image"))
+               elem.lastChild.previousSibling.style.display = "inline"
+         }
+         elem.onmouseout = () => {
+            elem.lastChild.style.display = "none"
+            if (![...elem.classList].includes("image"))
+               elem.lastChild.previousSibling.style.display = "none"
+         }
+      })
+   } else
+      ownMessages.forEach(elem => {
+         elem.onmouseover = () => null
+         elem.onmouseout = () => null
+      })
+}
+
 const placeMessage = ({ name, date, message, imageMsg, id }) => {
    let messageNode = create("p")
    messageNode.id = id
-      //message editing
-      let editor = create('a')
-      if (name == nickname) {
-         editor.innerText = ' Edit...'
-         editor.classList.add('badge', 'badge-primary')
-         editor.style.color = 'white'
-         editor.style.fontSize = '0.6rem'
-         editor.style.display = 'none'
-         editor.style.cursor = 'pointer'
-         editor.onclick = event => {
-            console.log(event.currentTarget.parentNode)
-            event.currentTarget.previousSibling.style.outline = '1px solid lightblue'
-            event.currentTarget.previousSibling.setAttribute('contentEditable', 'true')
+   messageNode.classList.add(`${name}`)
+   //message editing
+   let editor = createClickBadge("Edit", "primary")
+   editor.onclick = async () => {
+      let hitEnter = event => {
+         if (event.key === "Enter") {
+            event.preventDefault()
+            editor.onclick()
          }
-         messageNode.onmouseover = () => editor.style.display = 'inline'
-         messageNode.onmouseout = () => editor.style.display = 'none'
+      }
+      if (!editInProgress) {
+         resetVisibility(editInProgress, name)
+         editInProgress = true
+         editor.innerText = "Save"
+         editor.previousSibling.style.outline = "1px solid lightblue"
+         editor.previousSibling.setAttribute("contentEditable", "true")
+         messageNode.addEventListener("keydown", hitEnter)
+      } else {
+         resetVisibility(editInProgress, name)
+         editInProgress = false
+         editor.innerText = "Edit"
+         editor.style.display = "none"
+         editor.previousSibling.style.outline = "none"
+         editor.previousSibling.setAttribute("contentEditable", "false")
+         messageNode.removeEventListener("keydown", hitEnter)
+         let msgPatchedOnServer = await fetch(`/messages/${id}`, {
+            method: "PATCH",
+            headers: {
+               "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: editor.previousSibling.innerText })
+         })
+         let reply = await msgPatchedOnServer.json()
+         editor.previousSibling.innerText = reply.message
+      }
+   }
+
+   let remover = createClickBadge("Delete", "danger")
+   // remover.onclick = async (event) => {
+      
+   // }
+   //making other editors visible/invisible while editing in progress
+   if (name == nickname) {
+      if (message) {
+         messageNode.onmouseover = () => {
+            editor.style.display = "inline"
+            remover.style.display = "inline"
          }
+         messageNode.onmouseout = () => {
+            editor.style.display = "none"
+            remover.style.display = "none"
+         }
+      }
+      if (imageMsg) {
+         messageNode.onmouseover = () => {
+            remover.style.display = "inline"
+         }
+         messageNode.onmouseout = () => {
+            remover.style.display = "none"
+         }
+      }
+   }
+   //adding time
    let timeSpan = create("span")
    timeSpan.innerText = `<<${date}>> `
    timeSpan.style.fontWeight = "lighter"
@@ -50,28 +130,31 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
    timeSpan.style.fontSize = "0.75rem"
    timeSpan.style.color = "grey"
    messageNode.appendChild(timeSpan)
+   //adding username
    let userSpan = create("span")
    userSpan.innerText = `${name}: `
    name === nickname
       ? (userSpan.style.color = "orange")
       : (userSpan.style.color = "blue")
    messageNode.appendChild(userSpan)
-   //if text
+   //adding text
    if (message) {
       let msg = create("span")
       msg.innerText = `${message}  `
       messageNode.appendChild(msg)
    }
-   // if image
+   //adding image
    else {
       let img = create("img")
       img.src = imageMsg
-      img.style.width = "300px"
+      img.style.width = "250px"
+      //this class is used in messages editing
+      messageNode.classList.add("image")
       messageNode.appendChild(img)
    }
-
    messageNode.appendChild(editor)
-   
+   messageNode.appendChild(remover)
+
    messagesContainer.appendChild(messageNode)
    //! may be message container scroll into view?
    messageNode.scrollIntoView({ block: "end", behavior: "smooth" })
@@ -106,7 +189,7 @@ loginForm.onsubmit = async event => {
          user => user.name === nickname && user.password === password
       )
       if (userFound) {
-        userNick.innerText = nickname
+         userNick.innerText = nickname
          rememberCheck.checked
             ? localStorage.setItem(
                  "rememberedUser",
@@ -197,11 +280,11 @@ gobackBadge.onclick = event => {
 }
 
 logoutBtn.onclick = event => {
-  event.preventDefault()
-  loginContainer.classList.remove("d-none")
-  chatContainer.classList.add("d-none")
-  localStorage.clear()
-  clearInterval(startListening)
+   event.preventDefault()
+   loginContainer.classList.remove("d-none")
+   chatContainer.classList.add("d-none")
+   localStorage.clear()
+   clearInterval(startListening)
 }
 
 msgForm.onsubmit = async event => {
@@ -256,21 +339,21 @@ sendImgBtn.onclick = async () => {
 }
 
 let returnFileSize = number => {
-  if(number < 1024) {
-    return number + 'bytes';
-  } else if(number > 1024 && number < 1048576) {
-    return (number/1024).toFixed(1) + 'KB';
-  } else if(number > 1048576) {
-    return (number/1048576).toFixed(1) + 'MB';
-  }
+   if (number < 1024) {
+      return number + "bytes"
+   } else if (number > 1024 && number < 1048576) {
+      return (number / 1024).toFixed(1) + "KB"
+   } else if (number > 1048576) {
+      return (number / 1048576).toFixed(1) + "MB"
+   }
 }
 
 fileInput.onchange = () => {
-  let size = returnFileSize(fileInput.files[0].size)
+   let size = returnFileSize(fileInput.files[0].size)
    fileLabel.innerText = `"${fileInput.files[0].name}", ${size}`
 }
 
-//this is "remember me" logic
+//initializing "remember me" logic
 ;(function checkLocal() {
    let user = JSON.parse(localStorage.getItem("rememberedUser"))
    if (user) {
