@@ -4,6 +4,9 @@ let nickname = ""
 let users
 let startListening
 let editInProgress = false
+let passStrength = new RegExp(
+   "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
+)
 
 //* Shortcuts
 const create = tag => document.createElement(tag)
@@ -98,7 +101,7 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
    }
 
    let remover = createClickBadge("Delete", "danger")
-   remover.onclick = event => {
+   remover.onclick = () => {
       let modalConfirm = new Modal(confirmBox)
       modalConfirm.show()
       confirmBtn.onclick = async () => {
@@ -186,7 +189,7 @@ loginForm.onsubmit = async event => {
       nickname = loginForm.nickname.value
       loginForm.nickname.value = ""
       let password
-      //if event initiated by user we  need to hash his password
+      //if event initiated by user we need to hash his password
       if (event.isTrusted) password = readAndHash(loginForm.password)
       //otherwise we will read it from local storage and give to input
       //its hashed already (this is a part of "remember me" logic)
@@ -235,7 +238,6 @@ loginForm.onsubmit = async event => {
 registerForm.onsubmit = async event => {
    event.preventDefault()
    if (regnameInp.value !== "" && regpassInp.value !== "") {
-      let passStrength = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})")
       if (passStrength.test(regpassInp.value)) {
          regBtn.innerText = "  Checking..."
          let spinner = create("span")
@@ -270,7 +272,7 @@ registerForm.onsubmit = async event => {
          }
       } else {
          let alertText =
-            "Password should be minimum eight characters, at least one uppercase letter, one lowercase letter and one number. Please try again"
+            "Password should be minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character. Please try again"
          placeAlert(registrationContainer, "warning", alertText)
       }
    } else {
@@ -279,9 +281,6 @@ registerForm.onsubmit = async event => {
    }
    regBtn.innerText = "Create account"
 }
-
-//TODO logout btn
-//TODO forget me chckbox
 
 createBadge.onclick = event => {
    event.preventDefault()
@@ -383,6 +382,95 @@ fileInput.onchange = () => {
       loginForm.dispatchEvent(submit)
    }
 })()
+
+userAvatar.style.cursor = "pointer"
+userNick.style.cursor = "pointer"
+
+userAvatar.onclick = () => {
+   chatContainer.classList.add("d-none")
+   profileContainer.classList.remove("d-none")
+}
+
+userNick.onclick = () => userAvatar.onclick()
+
+exitProfile.onclick = () => {
+   if (passAlertHolder.firstChild.tagName !== "FORM")
+      passAlertHolder.removeChild(passAlertHolder.firstChild)
+   chatContainer.classList.remove("d-none")
+   profileContainer.classList.add("d-none")
+}
+
+changePassForm.onsubmit = async () => {
+   event.preventDefault()
+   if (
+      oldPassInp.value !== "" &&
+      newPassInp.value !== "" &&
+      confirmNewPassInp.value !== ""
+   ) {
+      if (newPassInp.value === confirmNewPassInp.value) {
+         if (passStrength.test(newPassInp.value)) {
+            let oldPass = readAndHash(oldPassInp)
+            changePassFormBtn.innerText = "  Checking..."
+            let spinner = create("span")
+            spinner.classList.add("spinner-border", "spinner-border-sm")
+            changePassFormBtn.prepend(spinner)
+            let userRequest = await fetch(`/users?name=${nickname}`)
+            user = await userRequest.json()
+            let id = user[0].id
+            if (oldPass == user[0].password) {
+               let newPass = readAndHash(newPassInp)
+               confirmNewPassInp.value = ""
+               confirmNewPassInp.style.outline = 'none'
+               oldPassInp.value = "" 
+               newPassInp.value = "" 
+               let patchPassword = await fetch(`/users/${id}`, {
+                  method: "PATCH",
+                  headers: {
+                     "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({ password: newPass })
+               })
+               if (patchPassword.status < 305 && patchPassword.status > 199) {
+                  let alertText =
+                     "Password was successfuly changed!"
+                     placeAlert(passAlertHolder, "success", alertText)
+                     passAlertHolder.firstChild.classList.remove("col-lg-6")
+               } else {
+                  let alertText = "Something went wrong, please try again"
+                  placeAlert(passAlertHolder, "danger", alertText)
+               }
+            } else {
+               let alertText = "Incorrect old password!"
+               placeAlert(passAlertHolder, "danger", alertText)
+               passAlertHolder.firstChild.classList.remove("col-lg-6")
+            }
+         } else {
+            let alertText =
+               "Password should be minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character. Please try again"
+            placeAlert(passAlertHolder, "warning", alertText)
+            passAlertHolder.firstChild.classList.remove("col-lg-6")
+         }
+      } else {
+         let alertText = "New password and confirm new password does not match"
+         placeAlert(passAlertHolder, "danger", alertText)
+         passAlertHolder.firstChild.classList.remove("col-lg-6")
+      }
+   } else {
+      let alertText =
+         "Please old password, new password and confirm new password"
+      placeAlert(passAlertHolder, "warning", alertText)
+      passAlertHolder.firstChild.classList.remove("col-lg-6")
+   }
+   changePassFormBtn.innerText = "Change password"
+}
+
+confirmNewPassInp.oninput = () => {
+   if (newPassInp.value !== "" && confirmNewPassInp.value !== "") {
+      confirmNewPassInp.style.outline = "double 2px red"
+      if (newPassInp.value === confirmNewPassInp.value)
+         confirmNewPassInp.style.outline = "double 2px green"
+   } else confirmNewPassInp.style.outline = "none"
+}
 
 //TODO private rooms, friends
 //TODO make userNick font-size adaptive by nickname.length
