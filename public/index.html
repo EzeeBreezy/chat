@@ -58,15 +58,25 @@
     <div class="row">
       <div class="col-lg-3">
         <div class="row">
-          <div class="col">
-          <div class="input-group input-group-sm flex-nowrap">
+
+          <div class="col" id="searchResultHolder">
+            
+            <div class="input-group input-group-sm flex-nowrap">
+
+                <div class="dropdown">
+                    <div class="dropdown-menu" id="dropdown">
+                    </div>
+                  </div>
+
               <div class="input-group-prepend">
                 <span class="input-group-text">@</span>
               </div>
-              <input type="text" class="form-control" placeholder="Username" aria-label="Username">
-          </div>
+              <input type="text" class="form-control dropdown-toggle" placeholder="Username"  data-toggle="dropdown" aria-label="Username" id="userSearch">
+           </div>
+
           </div>
         </div>
+
         <div class="row mt-4">
           <div class="col">
           <div class="nav flex-column nav-pills overflow-auto" id="v-pills-tab" role="tablist" aria-orientation="vertical">

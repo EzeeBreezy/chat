@@ -649,5 +649,26 @@ becomeOfflineBadge.onclick = event => {
    changeStatus('offline')
 }
 
+let createDropdown = name => {
+   let dropdownItem = create('button')
+   dropdownItem.classList.add('dropdown-item')
+   dropdownItem.innerText = name
+   dropdownItem.onclick = () => {
+
+   }
+   dropdown.appendChild(dropdownItem)
+}
+
+userSearch.oninput = () => {
+   dropdown.innerText = ''
+   for (let user of users)
+      if (user.name.startsWith(userSearch.value))
+         createDropdown(user.name)
+   if (!dropdown.hasChildNodes())
+      createDropdown('No such username...')
+}
+
+
 //TODO private rooms, friends
 //TODO invis status should be red in friends list
+//todo check if not in friendslist already .disabled
