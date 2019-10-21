@@ -138,6 +138,19 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
          }
       }
    }
+   //adding avatar
+   let avatarNode = create('img')
+   let avatarImg
+   avatarNode.style.width = '30px'
+   avatarNode.style.height = '30px'
+   avatarNode.classList.add('rounded-circle')
+   avatarNode.style.objectFit = 'cover'
+   for (let user of users)
+      user.name === name ? avatarImg = user.avatar : null
+   avatarImg 
+      ? avatarNode.src = avatarImg
+      : avatarNode.src = 'assets/images/userico.jpg'
+   messageNode.appendChild(avatarNode)
    //adding time
    let timeSpan = create("span")
    timeSpan.innerText = `<<${date}>> `

@@ -58,6 +58,12 @@
       "date": "21.10.2019, 00:50:38",
       "message": "other message",
       "id": 11
+    },
+    {
+      "name": "test",
+      "date": "10/21/2019, 12:29:19 PM",
+      "message": "i`ve added avatars!!",
+      "id": 12
     }
   ]
 }
