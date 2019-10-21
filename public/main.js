@@ -1,14 +1,42 @@
 //* Global variables
 let nickname = ""
 let users
-let startListening
 let editInProgress = false
 let passStrength = new RegExp(
   "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
 )
+// let messageListening
 let userStatus = "online"
 let statusChangeTimer
 let statusTimeout
+
+function Interval(fn, time) {
+   let timer = false
+   this.start = () => {
+       if (!this.isRunning())
+           timer = setInterval(fn, time)
+   }
+   this.stop = () => {
+       clearInterval(timer)
+       timer = false
+   }
+   this.isRunning = () => {
+       return timer !== false
+   }
+}
+
+let readMessageHistory = async () => {
+   let historyRequest = await fetch("/messages")
+   let history = await historyRequest.json()
+   for (let msg of history)
+      if (
+         !messagesContainer.lastChild ||
+         +msg.id > +messagesContainer.lastChild.id
+        )
+         placeMessage(msg)
+}
+
+let messageListening = new Interval(readMessageHistory, 1500)
 
 //* Shortcuts
 const create = tag => document.createElement(tag)
@@ -198,42 +226,6 @@ let readAndHash = inputTagId => {
   return sha.getHash("HEX")
 }
 
-let readMessageHistory = async () => {
-   startListening = setInterval(async () => {
-      let historyRequest = await fetch("/messages")
-      let history = await historyRequest.json()
-      for (let msg of history)
-        if (
-          !messagesContainer.lastChild ||
-          +msg.id > +messagesContainer.lastChild.id
-        )
-          placeMessage(msg)
-    }, 1500)
-}
-
-// function Interval(fn, time) {
-//    var timer = false;
-//    this.start = function () {
-//        if (!this.isRunning())
-//            timer = setInterval(fn, time);
-//    };
-//    this.stop = function () {
-//        clearInterval(timer);
-//        timer = false;
-//    };
-//    this.isRunning = function () {
-//        return timer !== false;
-//    };
-// }
-
-// var i = new Interval(fncName, 1000);
-// i.start();
-
-// if (i.isRunning())
-//    // ...
-
-// i.stop();
-
 //* Event Handlers
 loginForm.onsubmit = async event => {
   event.preventDefault()
@@ -273,17 +265,7 @@ loginForm.onsubmit = async event => {
         : null
       loginContainer.classList.add("d-none")
       chatContainer.classList.remove("d-none")
-      // startListening = setInterval(async () => {
-      //   let historyRequest = await fetch("/messages")
-      //   let history = await historyRequest.json()
-      //   for (let msg of history)
-      //     if (
-      //       !messagesContainer.lastChild ||
-      //       +msg.id > +messagesContainer.lastChild.id
-      //     )
-      //       placeMessage(msg)
-      // }, 1500)
-      readMessageHistory()
+      messageListening.start()
     } else {
       let alertText = "Password incorrect or user was not found"
       placeAlert(loginContainer, "danger", alertText)
@@ -373,24 +355,28 @@ logoutBtn.onclick = event => {
 
 msgForm.onsubmit = async event => {
   event.preventDefault()
-  let { value: newMsg } = msgInp
-  msgInp.value = ""
-  let curDate = new Date()
-  let dateStr = curDate.toLocaleString()
-  if (newMsg !== "") {
-    let msgSentToServer = await fetch("/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: nickname,
-        date: dateStr,
-        message: newMsg
-      })
-    })
-    let reply = await msgSentToServer.json()
-    placeMessage(reply)
+  if (userStatus !== 'offline') {
+   let { value: newMsg } = msgInp
+   msgInp.value = ""
+   let curDate = new Date()
+   let dateStr = curDate.toLocaleString()
+   if (newMsg !== "") {
+     let msgSentToServer = await fetch("/messages", {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json"
+       },
+       body: JSON.stringify({
+         name: nickname,
+         date: dateStr,
+         message: newMsg
+       })
+     })
+     let reply = await msgSentToServer.json()
+     placeMessage(reply)
+     if (userStatus !== 'invisible')
+      changeStatus('online')
+  }
   }
 }
 
@@ -585,10 +571,9 @@ let changeStatus = status => {
     case "online":
       {
         clearTimeout(statusTimeout)
-        statusChangeTimer = 10000
         statusTimeout = setTimeout(() => {
          changeStatus('away')
-       }, statusChangeTimer)
+       }, 10000)
         userStatusSpan.innerText = "Online"
         userStatusSpan.classList.remove(
           "badge-warning",
@@ -596,6 +581,7 @@ let changeStatus = status => {
           "badge-danger"
         )
         userStatusSpan.classList.add("badge-success")
+        messageListening.start()
         
         
       }
@@ -603,10 +589,9 @@ let changeStatus = status => {
     case "away":
       {
          clearTimeout(statusTimeout)
-         statusChangeTimer = 10000
          statusTimeout = setTimeout(() => {
           changeStatus('offline')
-        }, statusChangeTimer)
+        }, 10000)
         userStatusSpan.innerText = "Away"
         userStatusSpan.classList.remove(
           "badge-success",
@@ -614,7 +599,7 @@ let changeStatus = status => {
           "badge-danger"
         )
         userStatusSpan.classList.add("badge-warning")
-        readMessageHistory()
+        messageListening.start()
       }
       break
     case "invisible":
@@ -627,12 +612,12 @@ let changeStatus = status => {
           "badge-danger"
         )
         userStatusSpan.classList.add("badge-secondary")
-        readMessageHistory()
+        messageListening.start()
       }
       break
     case "offline": {
       clearTimeout(statusTimeout)
-      clearInterval(startListening)
+      messageListening.stop()
       userStatusSpan.innerText = "Offline"
       userStatusSpan.classList.remove(
         "badge-success",
@@ -665,4 +650,4 @@ becomeOfflineBadge.onclick = event => {
 }
 
 //TODO private rooms, friends
-//TODO statuses (online, offline, invisible, afk)
+//TODO invis status should be red in friends list
