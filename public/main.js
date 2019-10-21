@@ -185,8 +185,7 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
    messageNode.appendChild(remover)
 
    messagesContainer.appendChild(messageNode)
-   //! may be message container scroll into view?
-   messageNode.scrollIntoView({ block: "end", behavior: "smooth" })
+   messagesContainer.lastChild.scrollIntoView({ block: "end", behavior: "smooth" })
 }
 
 let readAndHash = inputTagId => {
@@ -223,6 +222,10 @@ loginForm.onsubmit = async event => {
             profilePicture.src = userFound.avatar
             userAvatar.src = userFound.avatar
          } 
+         else {
+            profilePicture.src = 'assets/images/userico.jpg'
+            userAvatar.src = 'assets/images/userico.jpg'
+         }
          rememberCheck.checked
             ? localStorage.setItem(
                  "rememberedUser",
@@ -322,6 +325,9 @@ logoutBtn.onclick = event => {
    localStorage.clear()
    clearInterval(startListening)
    nickname = ''
+   messagesContainer.innerText = ''
+   users = null
+   editInProgress = false
 }
 
 msgForm.onsubmit = async event => {
@@ -493,9 +499,75 @@ confirmNewPassInp.oninput = () => {
    } else confirmNewPassInp.style.outline = "none"
 }
 
+changeAvatarBtn.onclick = async () => {
+   let { files: uploadedFiles } = avatarInput
+   avatarLabel.innerText = "Choose image..."
+   if (uploadedFiles.length) {
+      let avatarId
+      for (let user of users)
+         if (user.name === nickname) {
+            avatarId = user.id
+            break
+         }
+      let fileReader = new FileReader()
+      fileReader.onload = async event => {
+      let baseData = event.target.result
+      let imgSentToServer = await fetch(`/users/${avatarId}`, {
+         method: "PATCH",
+         headers: {
+            "Content-Type": "application/json"
+         },
+         body: JSON.stringify({avatar: baseData})
+      })
+      let reply = await imgSentToServer.json()
+      profilePicture.src = reply.avatar
+      userAvatar.src = reply.avatar
+      let ownMessages = [...document.getElementsByClassName(`${nickname}`)]
+      console.log(ownMessages)
+      ownMessages.forEach(elem => {
+            elem.firstChild.src = reply.avatar
+         })
+      
+      }
+      fileReader.readAsDataURL(uploadedFiles[0])
+   }
+}
+
+avatarInput.onchange = () => {
+   if (avatarInput.files.length) {
+      let size = returnFileSize(avatarInput.files[0].size)
+      avatarLabel.innerText = `"${avatarInput.files[0].name}", ${size}`
+   } 
+   else avatarLabel.innerText = 'Choose image...'
+}
+
+// sendImgBtn.onclick = async () => {
+//    //*reading image
+//    let { files: uploadedFiles } = fileInput
+//    fileLabel.innerText = "Choose file..."
+//    if (uploadedFiles.length) {
+//       let fileReader = new FileReader()
+//       fileReader.onload = async event => {
+//          let baseData = event.target.result
+         
+//          let imgSentToServer = await fetch("/messages", {
+//             method: "POST",
+//             headers: {
+//                "Content-Type": "application/json"
+//             },
+//             body: JSON.stringify({
+//                name: nickname,
+//                imageMsg: baseData
+//             })
+//          })
+//          let reply = await imgSentToServer.json()
+//          placeMessage(reply)
+//       }
+//       fileReader.readAsDataURL(uploadedFiles[0])
+//    }
+// }
 
 
 //TODO private rooms, friends
-//TODO make userNick font-size adaptive by nickname.length
 //TODO account settings, avatar, 
 //TODO statuses (online, offline, invisible, afk)
