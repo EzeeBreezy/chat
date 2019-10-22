@@ -56,6 +56,7 @@
 
   <div id="chatContainer" class="container p-4 bg-light d-none">
     <div class="row">
+
       <div class="col-lg-3">
         <div class="row">
 
@@ -79,22 +80,20 @@
 
         <div class="row mt-4">
           <div class="col">
-          <div class="nav flex-column nav-pills overflow-auto" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-              <a class="nav-link mb-4 active" id="v-pills-home-tab" data-toggle="pill" href="#messagesContainer" role="tab" aria-controls="v-pills-general" aria-selected="true">Global chatroom</a>
+          <div class="nav flex-column nav-pills overflow-auto" id="chatroomsHolder" role="tablist" aria-orientation="vertical">
+              <a class="nav-link mb-4 active" id="globalTab" data-toggle="pill" href="#messagesContainer" role="tab" aria-controls="v-pills-general" aria-selected="true">Global chatroom</a>
               <span class="ml-auto mr-auto mb-2 mt-2">Friends private chatrooms</span>
-              <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">@User chatroom</a>
-              <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">@User chatroom</a>
-              <a class="nav-link" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">@User chatroom</a>
+              <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">@Adam chatroom <span class="bg-warning">&nbsp &nbsp</span></a>
+              <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">@Maksim chatroom <span class="bg-danger">&nbsp &nbsp</span></a>
           </div>
           </div>
         </div>
       </div>
       <div class="col-lg-9">
         <div class="tab-content" id="v-pills-tabContent">
-            <div class="tab-pane fade show active overflow-auto" id="messagesContainer" role="tabpanel" aria-labelledby="v-pills-general-tab"></div>
-            <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">...</div>
-            <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">...</div>
-            <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">...</div>
+            <div class="tab-pane  overflow-auto show active" id="messagesContainer" role="tabpanel" aria-labelledby="globalTab"></div>
+            <div class="tab-pane  overflow-auto " id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">1111</div>
+            <div class="tab-pane  overflow-auto" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">222222</div>
           </div>
     </div>
   </div>

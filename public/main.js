@@ -641,7 +641,15 @@ let createDropdown = name => {
     dropdownItem.classList.add("disabled")
   dropdownItem.innerText = name
   dropdownItem.onclick = async () => {
-    // let addFriendRequest = await 
+    currentUser.friends.push(name)
+    await fetch(`/users/${currentUser.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ friends: currentUser.friends })
+    })
+    //TODO add pill with new user
   }
   dropdown.appendChild(dropdownItem)
 }
@@ -654,6 +662,17 @@ userSearch.oninput = () => {
   if (!dropdown.hasChildNodes()) createDropdown("No such username...")
 }
 
-//TODO private rooms, friends
+//TODO private rooms
 //TODO invis status should be red in friends list
-//TODO current user would be good idea
+
+//!!!!!!!!!!!!!!!!!!!
+
+let myTabsCollection = chatroomsHolder.getElementsByTagName('A');
+
+// initialize the component for all items in the collection
+for (let i = 0; i < myTabsCollection.length; i++) {
+  new Tab(myTabsCollection[i], // our target
+  { // our options
+    height: true
+  })
+}

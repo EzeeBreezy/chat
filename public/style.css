@@ -4,7 +4,7 @@ body {
 }
 
 #messagesContainer {
-    height: 70vh
+    min-height: 70vh
 }
 
 .container {
