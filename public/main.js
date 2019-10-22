@@ -241,7 +241,7 @@ loginForm.onsubmit = async event => {
     let spinner = create("span")
     spinner.classList.add("spinner-border", "spinner-border-sm")
     formBtn.prepend(spinner)
-    let usersRequest = await fetch("/users")
+    let usersRequest = await fetch("/users/?_sort=name&_order=asc")
     users = await usersRequest.json()
     currentUser = users.find(
       user => user.name === nickname && user.password === password
@@ -285,7 +285,7 @@ registerForm.onsubmit = async event => {
       let spinner = create("span")
       spinner.classList.add("spinner-border", "spinner-border-sm")
       regBtn.prepend(spinner)
-      let usersRequest = await fetch("/users")
+      let usersRequest = await fetch("/users/?_sort=name&_order=asc")
       users = await usersRequest.json()
       let userAttemp = registerForm.nickname.value
       let currentUser = users.find(user => user.name === userAttemp)
