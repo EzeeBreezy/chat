@@ -18,7 +18,12 @@ body {
 
 #userNick {
     font-family: 'Modak', cursive;
-    font-size: 1.5rem
+    font-size: 1.5rem;
+    cursor: pointer
+}
+
+#userAvatar {
+    cursor: pointer
 }
 
 #userAvatar, #profilePicture {

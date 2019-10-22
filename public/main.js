@@ -1,14 +1,11 @@
 //* Global variables
-let nickname = "" //TODO chnage everywhere
 let users
 let currentUser
-// let friendList
 let editInProgress = false
 let passStrength = new RegExp(
   "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
 )
-// let messageListening
-let userStatus = "online" //TODO change evrywhere
+let userStatus = "online" //TODO change evrywhere // add patching for statuses
 let statusChangeTimer
 let statusTimeout
 
@@ -150,7 +147,7 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
   }
 
   //making other editors visible/invisible while editing in progress
-  if (name == nickname) {
+  if (name == currentUser.name) {
     if (message) {
       messageNode.onmouseover = () => {
         editor.style.display = "inline"
@@ -193,7 +190,7 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
   //adding username
   let userSpan = create("span")
   userSpan.innerText = `${name}: `
-  name === nickname
+  name === currentUser.name
     ? (userSpan.style.color = "orange")
     : (userSpan.style.color = "blue")
   messageNode.appendChild(userSpan)
@@ -232,7 +229,7 @@ let readAndHash = inputTagId => {
 loginForm.onsubmit = async event => {
   event.preventDefault()
   if (nicknameInp.value !== "" && passwordInp.value !== "") {
-    nickname = loginForm.nickname.value
+    let nickname = loginForm.nickname.value
     loginForm.nickname.value = ""
     let password
     //if event initiated by user we need to hash his password
@@ -251,7 +248,7 @@ loginForm.onsubmit = async event => {
       user => user.name === nickname && user.password === password
     )
     if (currentUser) {
-      userNick.innerText = nickname
+      userNick.innerText = currentUser.name
       friendList = currentUser.friends
       if (currentUser.avatar) {
         profilePicture.src = currentUser.avatar
@@ -263,7 +260,7 @@ loginForm.onsubmit = async event => {
       rememberCheck.checked
         ? localStorage.setItem(
             "rememberedUser",
-            JSON.stringify([nickname, password])
+            JSON.stringify([currentUser.name, password])
           )
         : null
       loginContainer.classList.add("d-none")
@@ -351,9 +348,9 @@ logoutBtn.onclick = event => {
   chatContainer.classList.add("d-none")
   localStorage.clear()
   clearTimeout(statusTimeout)
-  messageListening.stop()
-  nickname = ""
+  messageListening.stop() 
   messagesContainer.innerText = "" //TODO clear all channels also?
+  currentUser = null
   users = null
   editInProgress = false
 }
@@ -372,7 +369,7 @@ msgForm.onsubmit = async event => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          name: nickname,
+          name: currentUser.name,
           date: dateStr,
           message: newMsg
         })
@@ -400,7 +397,7 @@ sendImgBtn.onclick = async () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          name: nickname,
+          name: currentUser.name,
           date: dateStr,
           imageMsg: baseData
         })
@@ -439,9 +436,6 @@ fileInput.onchange = () => {
     loginForm.dispatchEvent(submit)
   }
 })()
-
-userAvatar.style.cursor = "pointer"
-userNick.style.cursor = "pointer"
 
 userAvatar.onclick = () => {
   chatContainer.classList.add("d-none")
@@ -541,7 +535,7 @@ changeAvatarBtn.onclick = async () => {
       let reply = await imgSentToServer.json()
       profilePicture.src = reply.avatar
       userAvatar.src = reply.avatar
-      let ownMessages = [...document.getElementsByClassName(`${nickname}`)]
+      let ownMessages = [...document.getElementsByClassName(`${currentUser.name}`)]
       ownMessages.forEach(elem => {
         elem.firstChild.src = reply.avatar
       })
@@ -643,7 +637,7 @@ becomeOfflineBadge.onclick = event => {
 let createDropdown = name => {
   let dropdownItem = create("button")
   dropdownItem.classList.add("dropdown-item")
-  if (friendList.includes(name))
+  if (currentUser.friends.includes(name))
     dropdownItem.classList.add("disabled")
   dropdownItem.innerText = name
   dropdownItem.onclick = async () => {
@@ -655,7 +649,7 @@ let createDropdown = name => {
 userSearch.oninput = () => {
   dropdown.innerText = ""
   for (let user of users)
-    if (user.name !== nickname && user.name.startsWith(userSearch.value))
+    if (user.name !== currentUser.name && user.name.startsWith(userSearch.value))
       createDropdown(user.name)
   if (!dropdown.hasChildNodes()) createDropdown("No such username...")
 }
