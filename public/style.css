@@ -29,3 +29,7 @@ body {
 #userAvatar, #profilePicture {
     object-fit: cover
 }
+
+/* .statusMarker {
+    border-radius: 50%
+} */
