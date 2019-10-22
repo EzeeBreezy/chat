@@ -3,8 +3,8 @@ body {
     font-family: 'Roboto', sans-serif
 }
 
-#messagesContainer {
-    min-height: 70vh
+.h-65vh {
+    height: 65vh !important
 }
 
 .container {
@@ -29,7 +29,3 @@ body {
 #userAvatar, #profilePicture {
     object-fit: cover
 }
-
-/* .statusMarker {
-    border-radius: 50%
-} */

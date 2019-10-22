@@ -1,13 +1,14 @@
 //* Global variables
 let users
 let currentUser
+let currentChannel = 'global'
 let editInProgress = false
-let passStrength = new RegExp(
+const passStrength = new RegExp(
   "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
 )
 let statusChangeTimer
 let statusTimeout
-
+//TODO do i need initialize new Tab for global?
 function Interval(fn, time) {
   let timer = false
   this.start = () => {
@@ -27,11 +28,24 @@ let readMessageHistory = async () => {
   let historyRequest = await fetch("/messages")
   let history = await historyRequest.json()
   for (let msg of history)
-    if (
-      !messagesContainer.lastChild ||
-      +msg.id > +messagesContainer.lastChild.id
-    )
+    if (msg.channel == 'global') {
+      if(       
+        !messagesContainer.lastChild ||
+        +msg.id > +messagesContainer.lastChild.id
+      )
+        placeMessage(msg)
+    }
+    else {
+      let chatroom
+      if (msg.channel == currentUser.name)
+      chatroom = document.getElementById(`chatroom${msg.name}`)
+      else chatroom = document.getElementById(`chatroom${msg.channel}`)
+      if (
+        !chatroom.lastChild ||
+        +msg.id > +chatroom.lastChild.id
+      )
       placeMessage(msg)
+    }
 }
 
 let messageListening = new Interval(readMessageHistory, 1500)
@@ -53,6 +67,31 @@ const placeAlert = (parent, alertType, alertText) => {
   )
   loginAlert.innerText = alertText
   parent.prepend(loginAlert)
+}
+
+//!!! replace name with user IDs?
+const createChatroom = name => {
+  //this is a tab switch button
+  let tabNode = create('a')
+  tabNode.classList.add("nav-link")
+  tabNode.id = `tab${name}`
+  tabNode.setAttribute('data-toggle', 'pill')
+  tabNode.href = `#chatroom${name}`
+  //span is an offline/online marker
+  let markerNode = create('span')
+  //!!!! status marker
+  markerNode.classList.add('rounded-circle', 'bg-danger')
+  markerNode.id = `statusOf${name}`
+  markerNode.innerHTML = `&nbsp &nbsp &nbsp`
+  tabNode.appendChild(markerNode)
+  tabNode.innerHTML += ` @${name} chatroom`
+  chatroomsHolder.appendChild(tabNode)
+  //this is a messages container
+  let chatroomNode = create('div')
+  chatroomNode.classList.add('tab-pane', 'overflow-auto', 'h-65vh')
+  chatroomNode.id = `chatroom${name}`
+  tabContent.appendChild(chatroomNode)
+  new Tab(tabNode)
 }
 
 const createClickBadge = (text, type) => {
@@ -88,7 +127,7 @@ const resetVisibility = (editState, name) => {
     })
 }
 
-const placeMessage = ({ name, date, message, imageMsg, id }) => {
+const placeMessage = ({ name, date, message, imageMsg, id, channel}) => {
   let messageNode = create("p")
   messageNode.id = id
   messageNode.classList.add(`${name}`)
@@ -144,7 +183,6 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
       modalConfirm.hide()
     }
   }
-
   //making other editors visible/invisible while editing in progress
   if (name == currentUser.name) {
     if (message) {
@@ -210,15 +248,28 @@ const placeMessage = ({ name, date, message, imageMsg, id }) => {
   }
   messageNode.appendChild(editor)
   messageNode.appendChild(remover)
-
-  messagesContainer.appendChild(messageNode)
-  messagesContainer.lastChild.scrollIntoView({
-    block: "end",
-    behavior: "smooth"
-  })
+  if (channel == 'global') {
+    messagesContainer.appendChild(messageNode)
+    messagesContainer.lastChild.scrollIntoView({
+      block: "end",
+      behavior: "smooth"
+    })
+  } else {
+    let chatroom
+    if (channel == currentUser.name)
+      chatroom = document.getElementById(`chatroom${name}`)
+    else chatroom = document.getElementById(`chatroom${channel}`)
+    chatroom.appendChild(messageNode)
+    chatroom.lastChild.scrollIntoView({
+      block: "end",
+      behavior: "smooth"
+    })
+  }
 }
 
-let readAndHash = inputTagId => {
+//TODO check whats goin on in sending msg
+
+const readAndHash = inputTagId => {
   let sha = new jsSHA("SHA-256", "TEXT")
   sha.update(inputTagId.value)
   return sha.getHash("HEX")
@@ -262,8 +313,10 @@ loginForm.onsubmit = async event => {
             JSON.stringify([currentUser.name, password])
           )
         : null
+      currentUser.friends.forEach(elem => createChatroom(elem))
       loginContainer.classList.add("d-none")
       chatContainer.classList.remove("d-none")
+      new Tab(globalTab)
       messageListening.start()
     } else {
       let alertText = "Password incorrect or user was not found"
@@ -353,7 +406,7 @@ logoutBtn.onclick = event => {
   users = null
   editInProgress = false
 }
-
+//TODO add chanel to each message, need a global channel, should be switched with click on tab
 msgForm.onsubmit = async event => {
   event.preventDefault()
   if (currentUser.status !== "offline") {
@@ -670,15 +723,4 @@ userSearch.oninput = () => {
 
 //TODO private rooms
 //TODO invis status should be red in friends list
-//TODO sort users in search
-//!!!!!!!!!!!!!!!!!!!
 
-let myTabsCollection = chatroomsHolder.getElementsByTagName('A');
-
-// initialize the component for all items in the collection
-for (let i = 0; i < myTabsCollection.length; i++) {
-  new Tab(myTabsCollection[i], // our target
-  { // our options
-    height: true
-  })
-}
