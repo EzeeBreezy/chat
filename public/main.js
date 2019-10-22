@@ -8,7 +8,7 @@ const passStrength = new RegExp(
 )
 let statusChangeTimer
 let statusTimeout
-//TODO do i need initialize new Tab for global?
+
 function Interval(fn, time) {
   let timer = false
   this.start = () => {
@@ -23,8 +23,8 @@ function Interval(fn, time) {
   }
 }
 
-let readMessageHistory = async () => {
-  //TODO will have to read users for statuses? another interval?
+let websocketReplacer = async () => {
+  //reading messages and placing them on document
   let historyRequest = await fetch("/messages")
   let history = await historyRequest.json()
   for (let msg of history)
@@ -46,9 +46,24 @@ let readMessageHistory = async () => {
       )
       placeMessage(msg)
     }
+  //reading users, to update their statuses
+  let usersRequest = await fetch("/users/?_sort=name&_order=asc")
+  users = await usersRequest.json()
+  currentUser.friends.forEach(friend => {
+    let marker = document.getElementById(`statusOf${friend}`)
+    marker.classList.remove('bg-danger', 'bg-warning', 'bg-success')
+    let status = users.find(user => user.name === friend).status
+    switch (status) {
+      case 'online': marker.classList.add('bg-success')
+        break
+      case 'away': marker.classList.add('bg-warning')
+        break
+      default: marker.classList.add('bg-danger')
+    }
+  })
 }
 
-let messageListening = new Interval(readMessageHistory, 1500)
+let listening = new Interval(websocketReplacer, 1500)
 
 //* Shortcuts
 const create = tag => document.createElement(tag)
@@ -69,7 +84,6 @@ const placeAlert = (parent, alertType, alertText) => {
   parent.prepend(loginAlert)
 }
 
-//!!! replace name with user IDs?
 const createChatroom = name => {
   //this is a tab switch button
   let tabNode = create('a')
@@ -85,6 +99,9 @@ const createChatroom = name => {
   markerNode.innerHTML = `&nbsp &nbsp &nbsp`
   tabNode.appendChild(markerNode)
   tabNode.innerHTML += ` @${name} chatroom`
+  tabNode.onmousedown = () => {
+    currentChannel = name
+  }
   chatroomsHolder.appendChild(tabNode)
   //this is a messages container
   let chatroomNode = create('div')
@@ -267,8 +284,6 @@ const placeMessage = ({ name, date, message, imageMsg, id, channel}) => {
   }
 }
 
-//TODO check whats goin on in sending msg
-
 const readAndHash = inputTagId => {
   let sha = new jsSHA("SHA-256", "TEXT")
   sha.update(inputTagId.value)
@@ -317,7 +332,7 @@ loginForm.onsubmit = async event => {
       loginContainer.classList.add("d-none")
       chatContainer.classList.remove("d-none")
       new Tab(globalTab)
-      messageListening.start()
+      listening.start()
     } else {
       let alertText = "Password incorrect or user was not found"
       placeAlert(loginContainer, "danger", alertText)
@@ -400,13 +415,14 @@ logoutBtn.onclick = event => {
   chatContainer.classList.add("d-none")
   localStorage.clear()
   clearTimeout(statusTimeout)
-  messageListening.stop() 
-  messagesContainer.innerText = "" //TODO clear all channels also?
+  listening.stop() 
+  let nodesToClear = [...tabContent.getElementsByTagName('DIV')]
+  nodesToClear.forEach(elem => elem.innerHTML = '')
   currentUser = null
   users = null
   editInProgress = false
 }
-//TODO add chanel to each message, need a global channel, should be switched with click on tab
+
 msgForm.onsubmit = async event => {
   event.preventDefault()
   if (currentUser.status !== "offline") {
@@ -423,7 +439,8 @@ msgForm.onsubmit = async event => {
         body: JSON.stringify({
           name: currentUser.name,
           date: dateStr,
-          message: newMsg
+          message: newMsg,
+          channel: currentChannel
         })
       })
       let reply = await msgSentToServer.json()
@@ -451,7 +468,8 @@ sendImgBtn.onclick = async () => {
         body: JSON.stringify({
           name: currentUser.name,
           date: dateStr,
-          imageMsg: baseData
+          imageMsg: baseData,
+          channel: currentChannel
         })
       })
       let reply = await imgSentToServer.json()
@@ -627,7 +645,7 @@ let changeStatus = async status => {
           "badge-danger"
         )
         userStatusSpan.classList.add("badge-success")
-        messageListening.start()
+        listening.start()
       }
       break
     case "away":
@@ -643,7 +661,7 @@ let changeStatus = async status => {
           "badge-danger"
         )
         userStatusSpan.classList.add("badge-warning")
-        messageListening.start()
+        listening.start()
       }
       break
     case "invisible":
@@ -656,12 +674,12 @@ let changeStatus = async status => {
           "badge-danger"
         )
         userStatusSpan.classList.add("badge-secondary")
-        messageListening.start()
+        listening.start()
       }
       break
     case "offline": {
       clearTimeout(statusTimeout)
-      messageListening.stop()
+      listening.stop()
       userStatusSpan.innerText = "Offline"
       userStatusSpan.classList.remove(
         "badge-success",
@@ -708,7 +726,8 @@ let createDropdown = name => {
       },
       body: JSON.stringify({ friends: currentUser.friends })
     })
-    //TODO add pill with new user
+    createChatroom(name)
+    dropdownItem.classList.add("disabled")
   }
   dropdown.appendChild(dropdownItem)
 }
@@ -721,6 +740,9 @@ userSearch.oninput = () => {
   if (!dropdown.hasChildNodes()) createDropdown("No such username...")
 }
 
-//TODO private rooms
+
 //TODO invis status should be red in friends list
+//TODO clear and comment everything
+//TODO blacklist, friends removal
+//TODO unread messages
 
