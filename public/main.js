@@ -5,7 +5,6 @@ let editInProgress = false
 let passStrength = new RegExp(
   "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
 )
-let userStatus = "online" //TODO change evrywhere // add patching for statuses
 let statusChangeTimer
 let statusTimeout
 
@@ -357,7 +356,7 @@ logoutBtn.onclick = event => {
 
 msgForm.onsubmit = async event => {
   event.preventDefault()
-  if (userStatus !== "offline") {
+  if (currentUser.status !== "offline") {
     let { value: newMsg } = msgInp
     msgInp.value = ""
     let curDate = new Date()
@@ -376,7 +375,7 @@ msgForm.onsubmit = async event => {
       })
       let reply = await msgSentToServer.json()
       placeMessage(reply)
-      if (userStatus !== "invisible") changeStatus("online")
+      if (currentUser.status !== "invisible") changeStatus("online")
     }
   }
 }
@@ -551,10 +550,17 @@ avatarInput.onchange = () => {
   } else avatarLabel.innerText = "Choose image..."
 }
 
-let changeStatus = status => {
-  userStatus = status
-  //TODO push current status to json?
-  switch (userStatus) {
+let changeStatus = async status => {
+  let changeStatusRequest = await fetch(`/users/${currentUser.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ 'status': status })
+  })
+  let reply = await changeStatusRequest.json()
+  currentUser.status = reply.status
+  switch (currentUser.status) {
     case "online":
       {
         clearTimeout(statusTimeout)
@@ -664,7 +670,7 @@ userSearch.oninput = () => {
 
 //TODO private rooms
 //TODO invis status should be red in friends list
-
+//TODO sort users in search
 //!!!!!!!!!!!!!!!!!!!
 
 let myTabsCollection = chatroomsHolder.getElementsByTagName('A');
