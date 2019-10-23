@@ -112,6 +112,7 @@ const createChatroom = name => {
       unreadMsgCounter[name] = 0
       if (tabNode.lastElementChild.tagName == "A")
       tabNode.removeChild(tabNode.lastElementChild)
+      //!!!!! track last read message ID
    }
    chatroomsHolder.appendChild(tabNode)
    //this is a messages container
@@ -785,7 +786,8 @@ userSearch.oninput = () => {
    if (!dropdown.hasChildNodes()) createDropdown("No such username...")
 }
 
-//TODO last read message id
+//TODO last read message id, to avoid reappearing unread messages indication
 //TODO blacklist, friends removal
 //TODO logout if user already online
 //TODO change messages once edited for all users
+//TODO group chatrooms
