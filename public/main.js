@@ -8,6 +8,9 @@ const passStrength = new RegExp(
 )
 let statusChangeTimer
 let statusTimeout
+const unreadMsgCounter = {
+  "global" : 0
+}
 
 const create = tag => document.createElement(tag)
 
@@ -42,15 +45,13 @@ let websocketReplacer = async () => {
          if (
             !messagesContainer.lastChild ||
             +msg.id > +messagesContainer.lastChild.id
-         )
-            placeMessage(msg)
+         ) 
+          placeMessage(msg)                   
       } else {
-         let chatroom
-         if (msg.channel == currentUser.name)
-            chatroom = document.getElementById(`chatroom${msg.name}`)
-         else chatroom = document.getElementById(`chatroom${msg.channel}`)
-
-         if (!chatroom.lastChild || +msg.id > +chatroom.lastChild.id)
+        if (msg.channel == currentUser.name)
+          msg.channel = msg.name
+        let chatroom = document.getElementById(`chatroom${msg.channel}`)
+        if (!chatroom.lastChild || +msg.id > +chatroom.lastChild.id)
             placeMessage(msg)
       }
    }
@@ -101,7 +102,6 @@ const createChatroom = name => {
    tabNode.href = `#chatroom${name}`
    //span is an offline/online marker
    let markerNode = create("span")
-   //!!!! status marker
    markerNode.classList.add("rounded-circle", "bg-danger")
    markerNode.id = `statusOf${name}`
    markerNode.innerHTML = `&nbsp &nbsp &nbsp`
@@ -109,6 +109,9 @@ const createChatroom = name => {
    tabNode.innerHTML += ` @${name} chatroom`
    tabNode.onmousedown = () => {
       currentChannel = name
+      unreadMsgCounter[name] = 0
+      if (tabNode.lastElementChild.tagName == "A")
+      tabNode.removeChild(tabNode.lastElementChild)
    }
    chatroomsHolder.appendChild(tabNode)
    //this is a messages container
@@ -119,15 +122,21 @@ const createChatroom = name => {
    new Tab(tabNode)
 }
 
-const createClickBadge = (text, type) => {
-   let badge = create("a")
-   badge.innerText = text
-   badge.classList.add("badge", `badge-${type}`)
-   badge.style.color = "white"
-   badge.style.fontSize = "0.7rem"
-   badge.style.display = "none"
-   badge.style.cursor = "pointer"
-   return badge
+const createBadge = (text, bgColor, type) => {
+  let badge = create("a")
+  badge.innerText = text
+  badge.classList.add("badge", `badge-${bgColor}`)
+  badge.style.color = "white"
+  if (type == "click") {
+    badge.style.fontSize = "0.7rem"
+    badge.style.display = "none"
+    badge.style.cursor = "pointer"
+  }
+  if (type == "unreadMarker") {
+    badge.style.position = 'absolute'
+    badge.style.right = '35px'
+  }
+  return badge
 }
 
 //making delete and edait badges visible again once edtitng process finished
@@ -158,7 +167,7 @@ const placeMessage = ({ name, date, message, imageMsg, id, channel }) => {
    messageNode.id = id
    messageNode.classList.add(`${name}`)
    //message editing
-   let editor = createClickBadge("Edit", "primary")
+   let editor = createBadge("Edit", "primary", "click")
    editor.onclick = async () => {
       let hitEnter = event => {
          if (event.key === "Enter") {
@@ -192,8 +201,7 @@ const placeMessage = ({ name, date, message, imageMsg, id, channel }) => {
          editor.previousSibling.innerText = reply.message
       }
    }
-
-   let remover = createClickBadge("Delete", "danger")
+   let remover = createBadge("Delete", "danger", "click")
    remover.onclick = () => {
       let modalConfirm = new Modal(confirmBox)
       modalConfirm.show()
@@ -275,6 +283,7 @@ const placeMessage = ({ name, date, message, imageMsg, id, channel }) => {
    }
    messageNode.appendChild(editor)
    messageNode.appendChild(remover)
+   // placing message into correct channel
    if (channel == "global") {
       messagesContainer.appendChild(messageNode)
       messagesContainer.lastChild.scrollIntoView({
@@ -282,16 +291,32 @@ const placeMessage = ({ name, date, message, imageMsg, id, channel }) => {
          behavior: "smooth"
       })
    } else {
-      let chatroom
-      if (channel == currentUser.name)
-         chatroom = document.getElementById(`chatroom${name}`)
-      else chatroom = document.getElementById(`chatroom${channel}`)
+      if (channel == currentUser.name) channel = name
+      let chatroom = document.getElementById(`chatroom${channel}`)
       chatroom.appendChild(messageNode)
       chatroom.lastChild.scrollIntoView({
          block: "end",
          behavior: "smooth"
       })
    }
+   //counting unread messages inside currently inactive channels
+   if (channel !== currentChannel && name !== currentUser.name) {
+    if (unreadMsgCounter[channel]) {
+      unreadMsgCounter[channel]++
+    } else {
+      unreadMsgCounter[channel] = 1
+    }
+      //placing unread indicator on the tab
+    let tab = document.getElementById(`tab${channel}`)
+    if (tab) {
+      if (tab.lastElementChild.tagName == "A")
+        tab.lastElementChild.innerText = unreadMsgCounter[channel]
+      else {
+        let badge = createBadge(unreadMsgCounter[channel], 'primary', 'unreadMarker')
+        tab.appendChild(badge)
+      }
+    }
+  }
 }
 
 const readAndHash = inputTagId => {
@@ -760,8 +785,7 @@ userSearch.oninput = () => {
    if (!dropdown.hasChildNodes()) createDropdown("No such username...")
 }
 
+//TODO last read message id
 //TODO blacklist, friends removal
-//TODO unread messages
 //TODO logout if user already online
 //TODO change messages once edited for all users
-//TODO PUT insted PATCH for ***deleted***?
