@@ -428,7 +428,7 @@ registerForm.onsubmit = async event => {
    regBtn.innerText = "Create account"
 }
 
-createBadge.onclick = event => {
+createFormBadge.onclick = event => {
    event.preventDefault()
    loginContainer.classList.add("d-none")
    registrationContainer.classList.remove("d-none")
